@@ -1,35 +1,68 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const date = require(__dirname + "/date.js")
+const date = require(__dirname + "/date.js");
+const mongoose = require("mongoose");
+
+mongoose.connect('mongodb://localhost:27017/todoItemsDB')
 
 const app = express();
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.static("public"))
 
+const itemsSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    }
+})
 
-
-var doList = [];
-var workList = [];
-
+const Item = mongoose.model("Item", itemsSchema);
+const Job = mongoose.model("Job", itemsSchema);
 app.set('view engine', 'ejs')
 
 app.get("/", function(req, res){
     var today = date.getDate();
-    res.render('list', {listType: today, newItem: doList})
+    
+    
+    Item.find({}, function(err, items){
+        if(err){
+            console.log(err);
+        }else{
+            console.log("search successful");
+        }
+        res.render('list', {listType: today, newItem: items})
+    })
+   
+    
 })
 
 
 app.get("/work", function(req, res){
-    res.render('list', {listType: "Work", newItem: workList})
+    Job.find({}, function(err, items){
+        if(err){
+            console.log(err);
+        }else{
+            console.log("search successful");
+        }
+        res.render('list', {listType: "Work", newItem: items})
+    })
+    
 })
 
 app.post("/", function(req, res){
     if(req.body.type === "Work"){
-        workList.push(req.body.listItem)
+        var newJob = new Job({
+            name: req.body.listItem
+        })
+        newJob.save();
         res.redirect("/work")
     }else{
-        doList.push(req.body.listItem)
+        var newItem = new Item({
+            name: req.body.listItem
+        })
+        newItem.save();
+        
         res.redirect("/");
     }
     
