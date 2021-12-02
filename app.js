@@ -43,14 +43,10 @@ app.get("/", function(req, res){
         }else{
             if(items.length === 0){
                 Item.insertMany([item1, item2, item3])
-                
             }
-            
         }
-        res.render('list', {listType: today, newItem: items})
+        res.render('list', {listType: today, newItem: items, collection: "Item"})
     })
-   
-    
 })
 
 
@@ -61,7 +57,7 @@ app.get("/work", function(req, res){
         }else{
             console.log("search successful");
         }
-        res.render('list', {listType: "Work", newItem: items})
+        res.render('list', {listType: "Work", newItem: items, collection: "Job"})
     })
     
 })
@@ -84,7 +80,27 @@ app.post("/", function(req, res){
     
 })
 
-
+app.post("/delete", function(req, res){
+    var data = req.body.delete.split("+")
+    if(data[1]=="Job"){
+        Job.deleteOne({_id: data[0]}, function(err){
+            if(err){
+                console.log(err);
+            }else{
+                res.redirect("/work")
+            }
+        })
+    }else{
+        Item.deleteOne({_id: data[0]}, function(err){
+            if(err){
+                console.log(err);
+            }else{
+                res.redirect("/")
+            }
+        })
+    }
+    
+})
 
 app.listen(3000, function(){
     console.log("server started on port 3000");
