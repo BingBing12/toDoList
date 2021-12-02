@@ -17,9 +17,21 @@ const itemsSchema = new mongoose.Schema({
     }
 })
 
+
+
 const Item = mongoose.model("Item", itemsSchema);
 const Job = mongoose.model("Job", itemsSchema);
 app.set('view engine', 'ejs')
+
+const item1 = new Item({
+    name: "Welcome to your personal To-Do-List"
+})
+const item2 = new Item({
+    name: "Press + to add new item"
+})
+const item3 = new Item({
+    name: "<--- press to delete"
+})
 
 app.get("/", function(req, res){
     var today = date.getDate();
@@ -29,7 +41,11 @@ app.get("/", function(req, res){
         if(err){
             console.log(err);
         }else{
-            console.log("search successful");
+            if(items.length === 0){
+                Item.insertMany([item1, item2, item3])
+                
+            }
+            
         }
         res.render('list', {listType: today, newItem: items})
     })
